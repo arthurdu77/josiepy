@@ -3,11 +3,25 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+Introduction
+============
+   
 .. toctree::
    :hidden:
    :maxdepth: 2
    :glob:
    :caption: Contents:
+  
+   self
+   intro
+   architecture
+   roadmap
+
+.. toctree:: 
+   :hidden:
+   :maxdepth: 2
+   :glob:
+   :caption: Examples: 
 
    examples/*
    zbibliography
