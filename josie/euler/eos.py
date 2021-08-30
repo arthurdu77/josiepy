@@ -34,8 +34,7 @@ class EOS(metaclass=abc.ABCMeta):
 
 
 class PerfectGas(EOS):
-    r"""This class embeds methods to compute states for the Euler problem
-    using an EOS (Equation of State) for perfect gases
+    r"""EOS (Equation of State) for perfect gases
 
     .. math::
 
@@ -138,6 +137,68 @@ class PerfectGas(EOS):
         """
 
         return np.sqrt(self.gamma * np.divide(p, rho))
+
+
+class BarotropicGas(PerfectGas):
+    r"""EOS (Equation of State) for barotropic gas
+
+    .. math::
+
+        p = C \density^\gamma
+
+
+    Attributes
+    ----------
+    C
+        The pre-multiplying constant :math:`C`
+    gamma
+        The exponential coefficient
+    """
+
+    def __init__(self, C: float = 1e5, gamma: float = 1.4):
+        self.C = C
+
+        super().__init__(gamma)
+
+    def p(self, rho: ArrayAndScalar, e: ArrayAndScalar) -> ArrayAndScalar:
+        return self.C * rho ** self.gamma
+
+    def sound_velocity(
+        self, rho: ArrayAndScalar, p: ArrayAndScalar
+    ) -> ArrayAndScalar:
+
+        return np.sqrt(self.C * self.gamma * rho ** (self.gamma - 1))
+
+    def rho(self, p: ArrayAndScalar, e: ArrayAndScalar) -> ArrayAndScalar:
+        return (p / self.C) ** (1 / self.C)
+
+
+class IsothermalGas(BarotropicGas):
+    r"""EOS (Equation of State) for isothermal gas
+
+    .. math::
+
+        p = C \density
+
+
+    Attributes
+    ----------
+    C
+        The pre-multiplying constant :math:`C`
+
+    e_ref
+        A reference internal energy value
+    """
+
+    def __init__(self, C: float = 1e5, e_ref: float = 3e5):
+        self.e_ref = e_ref
+        super().__init__(C, gamma=1)
+
+    def rhoe(self, rho: ArrayAndScalar, p: ArrayAndScalar) -> ArrayAndScalar:
+        # This is dummy, since in the isothermal case, the internal energy
+        # stays constant
+
+        return rho * self.e_ref
 
 
 class StiffenedGas(PerfectGas):
