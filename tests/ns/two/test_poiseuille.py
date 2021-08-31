@@ -2,10 +2,13 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+import logging
 import pytest
 
+from datetime import datetime
+
 from josie.boundary import Line
-from josie.euler.eos import PerfectGas
+from josie.euler.eos import BarotropicGas, IsothermalGas, PerfectGas
 from josie.euler.schemes import Rusanov
 from josie.math import Direction
 from josie.general.schemes.time import ExplicitEuler
@@ -99,10 +102,10 @@ def mesh(boundaries):
 
 @pytest.fixture
 def scheme(eos):
-    mu = 1.8e-5
+    mu = 1.8e-3
     # lmbda = -2 / 3 * mu
     lmbda = 0
-    alphaT = 2.1e-5
+    alphaT = mu
 
     transport = NSConstantTransport(
         viscosity=mu, bulk_viscosity=lmbda, thermal_diffusivity=alphaT
@@ -126,15 +129,34 @@ def solver(mesh, Q, scheme, init_fun):
     yield solver
 
 
-def test_poiseuille(solver, plot):
+def test_poiseuille(solver, plot, request):
     if plot:
         solver.plot()
 
     final_time = 1
-    CFL = 0.5
+    CFL = 0.3
+
+    # Enable logging
+
+    logger = logging.getLogger("josie")
+    logger.setLevel(logging.DEBUG)
+    h = logging.StreamHandler()
+    h.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    h.setFormatter(formatter)
+    logger.addHandler(h)
 
     write_strategy = TimeStrategy(dt_save=0.05, animate=True)
-    writer = XDMFWriter("ns.xdmf", write_strategy, solver, final_time, CFL)
+    time_string = datetime.now().strftime(r"%Y-%m-%d-%H-%M-%S-%f")
+    writer = XDMFWriter(
+        f"{request.node.name}-{time_string}.xdmf",
+        write_strategy,
+        solver,
+        final_time,
+        CFL,
+    )
     writer.solve()
 
     assert solver.t >= final_time
