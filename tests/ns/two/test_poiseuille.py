@@ -105,7 +105,7 @@ def mesh(boundaries, request):
 
 @pytest.fixture
 def scheme(eos):
-    mu = 1.8e-3
+    mu = 1e-3
     # lmbda = -2 / 3 * mu
     lmbda = 0
     alphaT = mu
