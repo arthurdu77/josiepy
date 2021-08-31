@@ -71,7 +71,7 @@ class DiffusiveScheme(Scheme):
 
         viscosity = np.max(self.problem.K(cells))
 
-        new_dt = CFL_value * (dx**2) / 2 / viscosity
+        new_dt = CFL_value * (dx**2) / viscosity
 
         return np.min((dt, new_dt))
 
