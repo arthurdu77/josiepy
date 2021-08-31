@@ -98,7 +98,7 @@ def mesh(boundaries):
 
 
 @pytest.fixture
-def scheme():
+def scheme(eos):
     mu = 1.8e-5
     # lmbda = -2 / 3 * mu
     lmbda = 0
@@ -136,6 +136,8 @@ def test_poiseuille(solver, plot):
     write_strategy = TimeStrategy(dt_save=0.05, animate=True)
     writer = XDMFWriter("ns.xdmf", write_strategy, solver, final_time, CFL)
     writer.solve()
+
+    assert solver.t >= final_time
 
     if plot:
         solver.show("U")
