@@ -65,7 +65,6 @@ class Writer(abc.ABC):
         solver = self.solver
 
         while self.solver.t < self.final_time:
-            logger.info(f"Current time: {self.solver.t}")
 
             dt = solver.scheme.CFL(
                 solver.mesh.cells,
@@ -73,6 +72,8 @@ class Writer(abc.ABC):
             )
 
             dt = self.strategy.check_write(self.solver.t, dt, solver)
+
+            logger.info(f"Current time: {self.solver.t}, dt: {dt}")
 
             if self.strategy.should_write:
                 self.write()
