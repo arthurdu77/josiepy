@@ -137,7 +137,7 @@ def test_poiseuille(solver, plot, request):
         solver.plot()
 
     final_time = 1
-    CFL = 0.5
+    CFL = 0.3
 
     # Enable logging
 
@@ -151,7 +151,7 @@ def test_poiseuille(solver, plot, request):
     h.setFormatter(formatter)
     logger.addHandler(h)
 
-    write_strategy = TimeStrategy(dt_save=0.1, animate=True)
+    write_strategy = TimeStrategy(dt_save=0.05, animate=True)
     time_string = datetime.now().strftime(r"%Y-%m-%d-%H-%M-%S-%f")
     writer = XDMFWriter(
         f"{request.node.name}-{time_string}.xdmf",
