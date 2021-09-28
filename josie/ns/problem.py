@@ -28,8 +28,9 @@ class NSProblem(EulerProblem, DiffusiveProblem):
         super().__init__(eos=eos, transport=transport)
 
     def K(self, cells: Union[CellSet, MeshCellSet]) -> np.ndarray:
-        r"""This method returns the diffusive tensor
-        :math:`\pdeDiffusiveMultiplier` for the Navier-Stokes system.
+        r"""This method returns the (reduced, i.e. that operates on a subset of
+        the entire state)diffusive tensor :math:`\pdeDiffusiveMultiplier` for
+        the Navier-Stokes system.
 
         In 2D it's
 
@@ -40,6 +41,9 @@ class NSProblem(EulerProblem, DiffusiveProblem):
             \nsDiffusiveMultiplierXY (xy)
             \nsDiffusiveMultiplierYX (yx)
             \nsDiffusiveMultiplierYY (yy)
+
+        where the :math:`\ipdeState` is :math:`\qty(\velocityX, \velocityX,
+        \density\internalEnergy)`
 
         """
 

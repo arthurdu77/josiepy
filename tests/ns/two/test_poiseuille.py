@@ -89,12 +89,15 @@ def boundaries(init_state, U_inlet, eos):
     yield (left, bottom, right, top)
 
 
-@pytest.fixture
-def mesh(boundaries):
+@pytest.fixture(
+    params=((150, 50), (300, 100), (450, 150), (1500, 500)),
+    ids=("150x50", "300x100", "450x150", "1500x500"),
+)
+def mesh(boundaries, request):
     left, bottom, right, top = boundaries
 
     mesh = Mesh(left, bottom, right, top, SimpleCell)
-    mesh.interpolate(150, 50)
+    mesh.interpolate(request.param[0], request.param[1])
     mesh.generate()
 
     yield mesh
@@ -134,7 +137,7 @@ def test_poiseuille(solver, plot, request):
         solver.plot()
 
     final_time = 1
-    CFL = 0.3
+    CFL = 0.5
 
     # Enable logging
 
@@ -148,7 +151,7 @@ def test_poiseuille(solver, plot, request):
     h.setFormatter(formatter)
     logger.addHandler(h)
 
-    write_strategy = TimeStrategy(dt_save=0.05, animate=True)
+    write_strategy = TimeStrategy(dt_save=0.1, animate=True)
     time_string = datetime.now().strftime(r"%Y-%m-%d-%H-%M-%S-%f")
     writer = XDMFWriter(
         f"{request.node.name}-{time_string}.xdmf",
