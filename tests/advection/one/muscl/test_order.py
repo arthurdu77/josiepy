@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 
 
-from scipy.special import erf
+# from scipy.special import erf
 import josie.general.schemes.time as time_schemes
 from josie.general.schemes.space.limiters import MUSCL_Hancock_no_limiter
 
