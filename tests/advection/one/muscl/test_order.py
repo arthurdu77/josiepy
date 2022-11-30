@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 
 
+from scipy.special import erf
 import josie.general.schemes.time as time_schemes
 from josie.general.schemes.space.limiters import MUSCL_Hancock_no_limiter
 
@@ -44,8 +45,8 @@ def init(x: np.ndarray):
         * (x < b)
         * (b - a)
     )
-    # u = x < 0.4
-
+    # u = (x > 0.4) * (x < 0.6)
+    # u = 0.5 * (1 + erf(20 * (x - 0.5)))
     return u
 
 
@@ -72,7 +73,7 @@ class AdvectionProblem(Problem):
 
 
 @pytest.fixture(
-    params=[0, 0.1],
+    params=[-1.0, 0, 0.1, 1.0],
 )
 def omega(request):
     yield request.param
@@ -134,7 +135,7 @@ def test_against_real_1D(solver, plot, tol, scheme, omega):
     """Testing against the real 1D solution"""
 
     L2_err = []
-    nx_tab = [100, 200, 300, 500, 1000, 2000, 3000]
+    nx_tab = [300, 500, 1000, 2000]
     plt.figure()
 
     for nx in nx_tab:
@@ -164,9 +165,11 @@ def test_against_real_1D(solver, plot, tol, scheme, omega):
         dt = c * dx
         T = 0.1
 
-        for t in np.linspace(0, T, int(np.ceil(T / dt)) + 1):
-            x = solver.mesh.cells.centroids[..., 0]
-            x = x.reshape(x.size)
+        x = solver.mesh.cells.centroids[..., 0]
+        x = x.reshape(x.size)
+        Nt = int(np.ceil(T / dt))
+        dt = T / Nt
+        for t in np.linspace(0, T, Nt + 1):
             u = solver.mesh.cells.values[..., 0]
             u = u.reshape(u.size)
 
@@ -177,18 +180,35 @@ def test_against_real_1D(solver, plot, tol, scheme, omega):
         L2_err.append(np.linalg.norm(err) * np.sqrt(1 / nx))
 
     if plot:
-        plt.loglog(nx_tab, L2_err[-1] * nx_tab[-1] / np.array(nx_tab), "--")
+        plt.loglog(
+            nx_tab,
+            L2_err[-1] * nx_tab[-1] / np.array(nx_tab),
+            "--",
+            label=r"$\propto \Delta x$",
+        )
         plt.loglog(
             nx_tab,
             L2_err[-1] * nx_tab[-1] ** 2 / np.array(nx_tab) ** 2,
             "--",
+            label=r"$\propto \Delta x^2$",
         )
         plt.loglog(
             nx_tab,
             L2_err[-1] * nx_tab[-1] ** 3 / np.array(nx_tab) ** 3,
             "--",
+            label=r"$\propto \Delta x^3$",
         )
-        plt.loglog(nx_tab, np.array(L2_err))
+        plt.scatter(nx_tab, np.array(L2_err), label=r"$E_{L^2}$")
+        plt.xlabel(r"$\frac{1}{\Delta x}$")
+        plt.ylabel(r"erreur $L^2$")
+        plt.title(
+            r"Erreur L2 (diff. finies) pour le cas $\omega=$" + str(omega)
+        )
+        plt.legend(loc="lower left")
+
+        # plt.figure()
+        # plt.plot(x, u, marker="+")
+        # plt.plot(x, init(x - t), linestyle="--")
         plt.show()
 
     eps = 0.2

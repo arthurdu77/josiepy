@@ -116,5 +116,5 @@ class MUSCL_Hancock_MinMod(MUSCL_Hancock_Beta_limiters):
     beta = 1.0
 
 
-class MUSCL_Hancock_SuperBee(MUSCL_Hancock_Beta_limiters):
+class MUSCL_Hancock_Superbee(MUSCL_Hancock_Beta_limiters):
     beta = 2.0
