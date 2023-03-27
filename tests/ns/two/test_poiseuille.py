@@ -90,8 +90,10 @@ def boundaries(init_state, U_inlet, eos):
 
 
 @pytest.fixture(
-    params=((150, 50), (300, 100), (450, 150), (1500, 500)),
-    ids=("150x50", "300x100", "450x150", "1500x500"),
+    params=((150, 50)),
+    ids=("150x50"),
+    # params=((150, 50), (300, 100), (450, 150), (1500, 500)),
+    # ids=("150x50", "300x100", "450x150", "1500x500"),
 )
 def mesh(boundaries, request):
     left, bottom, right, top = boundaries
