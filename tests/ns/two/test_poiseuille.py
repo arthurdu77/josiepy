@@ -8,7 +8,7 @@ import pytest
 from datetime import datetime
 
 from josie.boundary import Line
-from josie.euler.eos import BarotropicGas, IsothermalGas, PerfectGas
+from josie.euler.eos import PerfectGas
 from josie.euler.schemes import Rusanov
 from josie.math import Direction
 from josie.general.schemes.time import ExplicitEuler
@@ -90,8 +90,8 @@ def boundaries(init_state, U_inlet, eos):
 
 
 @pytest.fixture(
-    params=((150, 50)),
-    ids=("150x50"),
+    params=((150, 50),),
+    ids=("150x50",),
     # params=((150, 50), (300, 100), (450, 150), (1500, 500)),
     # ids=("150x50", "300x100", "450x150", "1500x500"),
 )
