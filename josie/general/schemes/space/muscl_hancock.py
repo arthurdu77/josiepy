@@ -6,6 +6,7 @@ import numpy as np
 
 import abc
 
+import copy
 from josie.mesh.cellset import MeshCellSet, NeighboursCellSet
 
 from josie.scheme.convective import ConvectiveScheme
@@ -153,7 +154,7 @@ class MUSCL_Hancock(ConvectiveScheme):
         # Initialize state values at each face with the state value
         # of the cell
         for dir in range(2**cells.dimensionality):
-            self.values_face._values[..., dir] = cells._values
+            self.values_face._values[..., dir] = cells._values.copy()
 
         # Compute the slope for each direction according to the
         # chosen limiter

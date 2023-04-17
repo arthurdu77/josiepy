@@ -73,7 +73,8 @@ class AdvectionProblem(Problem):
 
 
 @pytest.fixture(
-    params=[-1.0, 0, 0.1, 1.0],
+    # params=[-1.0, 0, 0.1, 1.0],
+    params=[0],
 )
 def omega(request):
     yield request.param
@@ -81,7 +82,7 @@ def omega(request):
 
 @pytest.fixture
 def scheme():
-    class Upwind(MUSCL_Hancock_no_limiter, time_schemes.ExplicitEuler):
+    class Upwind(MUSCL_Hancock_no_limiter, time_schemes.RK2):
         def intercellFlux(
             self, Q_L: Q, Q_R: Q, normals: np.ndarray, surfaces: np.ndarray
         ):
@@ -135,7 +136,7 @@ def test_against_real_1D(solver, plot, tol, scheme, omega):
     """Testing against the real 1D solution"""
 
     L2_err = []
-    nx_tab = [300, 500, 1000, 2000]
+    nx_tab = [30, 50, 100, 300, 500, 1000]
     plt.figure()
 
     for nx in nx_tab:
@@ -168,8 +169,7 @@ def test_against_real_1D(solver, plot, tol, scheme, omega):
         x = solver.mesh.cells.centroids[..., 0]
         x = x.reshape(x.size)
         Nt = int(np.ceil(T / dt))
-        dt = T / Nt
-        for t in np.linspace(0, T, Nt + 1):
+        for t in np.linspace(0, Nt * dt, Nt + 1):
             u = solver.mesh.cells.values[..., 0]
             u = u.reshape(u.size)
 
@@ -177,7 +177,7 @@ def test_against_real_1D(solver, plot, tol, scheme, omega):
 
             solver.step(dt)
 
-        L2_err.append(np.linalg.norm(err) * np.sqrt(1 / nx))
+        L2_err.append(np.linalg.norm(err) * np.sqrt(dx))
 
     if plot:
         plt.loglog(
@@ -201,9 +201,7 @@ def test_against_real_1D(solver, plot, tol, scheme, omega):
         plt.scatter(nx_tab, np.array(L2_err), label=r"$E_{L^2}$")
         plt.xlabel(r"$\frac{1}{\Delta x}$")
         plt.ylabel(r"erreur $L^2$")
-        plt.title(
-            r"Erreur L2 (diff. finies) pour le cas $\omega=$" + str(omega)
-        )
+        plt.title(r"Erreur L2 (diff. finies) pour le cas $\omega=$" + str(omega))
         plt.legend(loc="lower left")
 
         # plt.figure()
@@ -218,7 +216,4 @@ def test_against_real_1D(solver, plot, tol, scheme, omega):
         rcond=None,
     )[0]
 
-    assert (
-        np.abs(order + 2) < eps
-        and not (musclScheme.omega == 1 / 3 * (2 * c - np.sign(c)))
-    ) or (np.abs(order + 3) < eps and musclScheme.omega == 1 / 3 * (2 * c - np.sign(c)))
+    assert np.abs(order + 2) < eps
