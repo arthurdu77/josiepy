@@ -185,9 +185,7 @@ def test_against_real_1D(solver, plot, tol, scheme):
         plt.scatter(nx_tab, np.array(L2_err), label=r"$E_{L^2}$")
         plt.xlabel(r"$\frac{1}{\Delta x}$")
         plt.ylabel(r"erreur $L^2$")
-        plt.title(
-            r"L2 error"
-        )
+        plt.title(r"L2 error")
         plt.legend(loc="lower left")
 
         plt.show()

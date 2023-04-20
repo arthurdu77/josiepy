@@ -53,6 +53,7 @@ riemann_states = [
 def riemann_state(request):
     yield request.param
 
+
 @pytest.fixture(params=[Exact])
 def IntercellFlux(request):
     yield request.param
